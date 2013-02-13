@@ -39,4 +39,8 @@ int is_coprime(long int a, long int b);
 
 int pythagorean_triplet(int p, int q, int *a, int *b, int *c);
 
+long modpow(long b, long e, long m);
+
+int is_prime_rabmil(long int n, long int k);
+
 #endif // EULER_UTILS_H

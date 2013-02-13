@@ -319,3 +319,138 @@ int pythagorean_triplet(int p, int q, int *a, int *b, int *c)
 
     return 0;
 }
+
+// https://en.wikipedia.org/wiki/Modular_exponentiation
+long modpow(long b, long e, long m)
+{
+    long result = 1;
+
+    while (e > 0)
+    {
+        if (e % 2 == 1)
+        {
+            result = (result * b) % m;
+        }
+
+        e = e >> 1;
+
+        b = (b*b) % m;
+    }
+
+    return result;
+}
+
+// Input: n > 3, an odd integer to be tested for primality;
+// Input: k, a parameter that determines the accuracy of the test
+// Output: composite if n is composite, otherwise probably prime
+// write n − 1 as 2^s*d with d odd by factoring powers of 2 from n − 1
+// WitnessLoop: repeat k times:
+//    pick a random integer a in the range [2, n − 2]
+//    x ← ad mod n
+//    if x = 1 or x = n − 1 then do next WitnessLoop
+//    repeat s − 1 times:
+//       x ← x2 mod n
+//       if x = 1 then return composite
+//       if x = n − 1 then do next WitnessLoop
+//    return composite
+// return probably prime
+
+int is_prime_rabmil(long int n, long int k)
+{
+    long pow2 = 0;
+    long tmp = n-1;
+    int q_is_prime;
+    long i, j;
+    long d;
+    int next_witness;
+
+    if (n == 2)
+        return 1;
+
+    if (n % 2 == 0)
+        return 0;
+
+    // write n − 1 as 2^s*d with d odd by factoring powers of 2 from n − 1
+    while (1)
+    {
+        long q = tmp / 2;
+        long r = tmp % 2;
+
+        if (r == 0)
+        {
+            pow2++;
+
+            if (q == 1)
+            {
+                break;
+            }
+
+            q_is_prime = 1;
+
+            for (i = 2; i < sqrt(q); ++i)
+            {
+                if (q % i == 0)
+                {
+                    q_is_prime = 0;
+                    break;
+                }
+            }
+
+            if (q_is_prime)
+            {
+                break;
+            }
+
+            tmp = q;
+        }
+        else
+        {
+            break;
+        }
+    }
+
+    d = (n-1) / (long)pow(2, pow2);
+
+    // WitnessLoop: repeat k times:
+    for (i = 0; i < k; ++i)
+    {
+        // pick a random integer a in the range [2, n − 2]
+        long a = 2 + rand() % (n-2);
+
+        // x ← a^d mod n
+        // int x = ((long)pow(a, d)) % n;
+        long x = modpow(a, d, n);
+
+        // if x = 1 or x = n − 1 then do next WitnessLoop
+        if (x == 1 || x == n-1)
+            continue;
+
+        next_witness = 0;
+
+        // repeat s − 1 times:
+        for (j = 0; j < pow2-1; ++j)
+        {
+            // x ← x2 mod n
+            x = (x*x) % n;
+
+            // if x = 1 then return composite
+            if (x == 1) return 0;
+
+            // if x = n − 1 then do next WitnessLoop
+            if (x == n-1)
+            {
+                next_witness = 1;
+                break;
+            }
+        }
+
+        if (next_witness)
+            continue;
+
+        // return composite
+        return 0;
+    }
+
+    // return probably prime
+    return 1;
+}
